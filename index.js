@@ -19,7 +19,8 @@ const app = express();
 app.post('/callback', line.middleware({
   channelSecret: secret.channelSecret
 }), (req, res) => {
-  console.log('Request received:', req.body);
+  console.log('Request received:', req);
+  console.log('Request Query:', JSON.stringify(req.query));
   Promise
     .all(req.body.events.map(handleEvent))
     .then((result) => res.json(result))
@@ -31,22 +32,36 @@ app.post('/callback', line.middleware({
 
 // event handler
 function handleEvent(event) {
-  if (event.type !== 'message' || event.message.type !== 'text') {
-    // ignore non-text-message event
-    console.log('Non-text message received, skipping...');
-    return Promise.resolve(null);
+  if (event.type === 'follow') {
+
+    console.log(`UserId is: ${event.source.userId}`);
+
+    const welcomeMessage = {
+      type: 'text',
+      text: '欢迎关注！'
+    };
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [welcomeMessage]
+    });
   }
-
-  console.log(`Message received: ${event.message.text}`);
-
-  // create an echoing text message
-  const echo = { type: 'text', text: event.message.text };
-
-  // use reply API
-  return client.replyMessage({
-    replyToken: event.replyToken,
-    messages: [echo],
-  });
+  // if (event.type !== 'message' || event.message.type !== 'text') {
+  //   // ignore non-text-message event
+  //   console.log('Non-text message received, skipping...');
+  //   return Promise.resolve(null);
+  // }
+  //
+  //
+  // console.log(`Message received: ${event.message.text}`);
+  //
+  // // create an echoing text message
+  // const echo = { type: 'text', text: event.message.text };
+  //
+  // // use reply API
+  // return client.replyMessage({
+  //   replyToken: event.replyToken,
+  //   messages: [echo],
+  // });
 }
 
 // 加载 SSL 证书和密钥文件
