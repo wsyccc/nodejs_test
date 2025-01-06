@@ -38,7 +38,7 @@ function handleEvent(event) {
 
     const welcomeMessage = {
       type: 'text',
-      text: '欢迎关注！'
+      text: 'Please use the link to bind with your Line account: https://www.idcs4iot.net/authentication/signin?lineId=' + event.source.userId
     };
     return client.replyMessage({
       replyToken: event.replyToken,
